@@ -104,17 +104,25 @@ class Solution {
             }
         }
         char[] array = new char[baseStr.length()];
+        Map<Integer, Character> map1 = new HashMap<>();
         for (int i = 0; i < baseStr.length(); i++) {
             int num = baseStr.charAt(i);
             boolean flag = false;
-            for (List<Integer> list1 : list) {
-                if (list1.contains(num)) {
-                    int integer = list1.get(0);
-                    array[i] = (char) integer;
-                    flag = true;
-                    break;
+            if (map1.containsKey(num)) {
+                array[i] = map1.get(num);
+                flag = true;
+            } else {
+                for (List<Integer> list1 : list) {
+                    if (list1.contains(num)) {
+                        int integer = list1.get(0);
+                        array[i] = (char) integer;
+                        map1.put(num, array[i]);
+                        flag = true;
+                        break;
+                    }
                 }
             }
+            
             if(!flag) {
                 array[i] = baseStr.charAt(i);
             }
