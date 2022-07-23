@@ -8,12 +8,10 @@ class Solution {
         int res = 0;
         Map<Character, Integer> map = new HashMap<>();
         for (int left = 0, right = 0; right < len; right++) {
-            int count = map.getOrDefault(array[right], 0);
-            map.put(array[right], ++count);
+            map.put(array[right], map.getOrDefault(array[right], 0) + 1);
             if (map.size() > k) {
                 while (map.size() > k) {
-                    int num = map.get(array[left]);
-                    map.put(array[left], --num);
+                    map.put(array[left], map.get(array[left]) - 1);
                     if (map.get(array[left]) == 0) {
                         map.remove(array[left]);
                     }
