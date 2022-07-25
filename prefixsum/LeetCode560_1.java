@@ -33,10 +33,7 @@ class Solution {
             for (int i = index; i < len; i++) {
                 sum += nums[i];
                 if (sum == k) {
-                    count++;
-                    if (i + 1 == len) {
-                        break;
-                    } 
+                    count++; 
                 }
             }
             index++;
