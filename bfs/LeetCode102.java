@@ -48,7 +48,7 @@
 */
 class Solution {
     public List<List<Integer>> levelOrder(TreeNode root) {
-        List<List<Integer>> list = new ArrayList<>();
+        List<List<Integer>> list = new LinkedList<>();
         if (root == null) {
             return list;
         }
@@ -57,7 +57,7 @@ class Solution {
         List<Integer> level;
         while (!deque.isEmpty()) {
             int size = deque.size();
-            level = new ArrayList<>();
+            level = new LinkedList<>();
             for (int i = 0; i < size; i++) {
                 TreeNode cur = deque.poll();
                 level.add(cur.val);
