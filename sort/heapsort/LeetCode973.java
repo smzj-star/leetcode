@@ -61,7 +61,7 @@ class Solution {
             if (i < heapLen - 1 && distance(heap[i + 1][0], heap[i + 1][1]) < distance(heap[i][0], heap[i][1])) {
                 i++;
             }
-            if (distance(temp[0], temp[1]) < distance(heap[i][0], heap[i][1])) {
+            if (distance(temp[0], temp[1]) <= distance(heap[i][0], heap[i][1])) {
                 break;
             }
             heap[root] = heap[i];
@@ -70,15 +70,13 @@ class Solution {
         heap[root] = temp;
     }
 
-    private double distance(int x, int y) {
-        return Math.pow(x, 2) + Math.pow(y, 2);
+    private int distance(int x, int y) {
+        return x * x + y * y;
     }
 
     private void swap(int[][] heap, int a, int b) {
-        if (heap[a] != heap[b]) {
-            int[] temp = heap[a];
-            heap[a] = heap[b];
-            heap[b] = temp;
-        }
+        int[] temp = heap[a];
+        heap[a] = heap[b];
+        heap[b] = temp;
     }
 }
