@@ -11,13 +11,13 @@ class Solution {
         int count = 0;
         int result = 0;
         for (int right = 0; right < len; right++) {
-            map[array[right] - '0']++;
-            if (map[array[right] - '0'] == 1) {
+            map[array[right]]++;
+            if (map[array[right]] == 1) {
                 count++;
             }
             while (count > 2) {
-                map[array[left] - '0']--;
-                if (map[array[left] - '0'] == 0) {
+                map[array[left]]--;
+                if (map[array[left]] == 0) {
                     count--;
                 }
                 left++;
