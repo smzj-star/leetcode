@@ -14,65 +14,51 @@
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 class Solution {
-    private static class Pair {
-        int x;
-        int y;
-        Pair (int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Pair pair = (Pair) o;
-            return x == pair.x && y == pair.y;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-    }
-    int[][] directions = {{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, 2}, {-1, -2}, {-2, -1}};
+    private int[][] directions = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
     public int minKnightMoves(int x, int y) {
-        if(x == 0 && y == 0) {
+        if (x == 0 && y == 0) {
             return 0;
         }
-        int absX = Math.abs(x);
-        int absY = Math.abs(y);
-        Deque<Pair> deque = new LinkedList<>();
-        Set<Pair> visited = new HashSet<>();
-        deque.offer(new Pair(0, 0));
-        visited.add(new Pair(0, 0));
+        // 访问数组：boolean[][] visited(二、三、四象限有负值，需特殊处理)
+        boolean[][] visited = new boolean[601][601];
+        Deque<int[]> deque = new LinkedList<>();
+        deque.offer(new int[]{0, 0});
+        visited[300][300] = true;
         int step = 0;
         while (!deque.isEmpty()) {
+            step++;
             int size = deque.size();
             for (int i = 0; i < size; i++) {
-                Pair cur = deque.poll();
+                int[] cur = deque.poll();
+                // 当前位置到目标位置的曼哈顿距离
+                /**
+                    额外小知识：曼哈顿距离
+                    例如在平面上，坐标(x1,y1)的i点与坐标(x2,y2)的j点的曼哈顿距离为：
+                    d(i,j)=|X1-X2|+|Y1-Y2|.
+                 */
+                int currentDistance = getDistance(cur[0], cur[1], x, y);
                 for (int[] direction : directions) {
-                    int rowIndex = cur.x + direction[0];
-                    int colIndex = cur.y + direction[1];
-                    if (isValid(rowIndex, colIndex)) {
-                        if (rowIndex == absX && colIndex == absY) {
-                            return ++step;
-                        }
-                        Pair newPair = new Pair(rowIndex, colIndex);
-                        if (!visited.contains(newPair)) {
-                            visited.add(newPair);
-                            deque.offer(new Pair(rowIndex, colIndex));
-                        }
-                        
+                    int rowIndex = cur[0] + direction[0];
+                    int colIndex = cur[1] + direction[1];
+                    if (rowIndex == x && colIndex == y) {
+                        return step;
+                    }
+                    if (visited[rowIndex + 300][colIndex + 300]) {
+                        continue;
+                    }
+                    // 新到达的位置到目标位置的曼哈顿距离 小于 当前位置到目标位置的曼哈顿距离
+                    int updateDistance = getDistance(rowIndex, colIndex, x, y);
+                    if (updateDistance < currentDistance || step == 1) {
+                        deque.offer(new int[]{rowIndex, colIndex});
+                        visited[rowIndex + 300][colIndex + 300] = true;
                     }
                 }
             }
-            step++;
         }
-        return step;
+        return -1;
     }
 
-    private boolean isValid(int x, int y) {
-        return x >= 0 && Math.abs(y) >= 0;
+    private int getDistance(int srcX, int srcY, int targetX, int targetY) {
+        return Math.abs(srcX - targetX) + Math.abs(srcY - targetY);
     }
 }
