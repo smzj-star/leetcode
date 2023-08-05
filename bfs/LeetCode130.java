@@ -26,54 +26,45 @@ board[i][j] 为 'X' 或 'O'
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 class Solution {
-    private static class Point {
-        int x;
-        int y;
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
     public void solve(char[][] board) {
-        int row = board.length;
-        int col = board[0].length;
-        Deque<Point> deque = new LinkedList<>();
-        // 找到边界上所有的O
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (i == 0 || i == row - 1 || j == 0 || j == col - 1) {
+        int rows = board.length;
+        int cols = board[0].length;
+        Deque<int[]> deque = new LinkedList<>();
+        boolean[][] visited = new boolean[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (i == 0 || i == rows - 1 || j == 0 || j == cols - 1) {
                     if (board[i][j] == 'O') {
-                        deque.offer(new Point(i, j));
+                        deque.offer(new int[]{i, j});
+                        visited[i][j] = true;
                     }
                 }
             }
         }
-        // BFS遍历
         while (!deque.isEmpty()) {
-            Point cur = deque.poll();
-            if (valid(cur.x, cur.y, row, col) && board[cur.x][cur.y] == 'O') {
-                board[cur.x][cur.y] = 'B';
-                for (int[] direction: directions) {
-                    deque.offer(new Point(cur.x + direction[0], cur.y + direction[1]));
+            int[] cur = deque.poll();
+            for (int[] direction : directions) {
+                int rowIndex = cur[0] + direction[0];
+                int colIndex = cur[1] + direction[1];
+                if (isValid(rowIndex, colIndex, board, visited)) {
+                    visited[rowIndex][colIndex] = true;
+                    deque.offer(new int[]{rowIndex, colIndex});
                 }
             }
         }
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (board[i][j] == 'O') {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (!visited[i][j]) {
                     board[i][j] = 'X';
-                }
-                if (board[i][j] == 'B') {
-                    board[i][j] = 'O';
                 }
             }
         }
     }
 
-    private boolean valid(int rowIndex, int colIndex, int row, int col) {
-        return rowIndex >= 0 && rowIndex < row && colIndex >= 0 && colIndex < col;
+    private boolean isValid(int rowIndex, int colIndex, char[][] board, boolean[][] visited) {
+        return rowIndex >= 0 && rowIndex < board.length && colIndex >= 0 &&
+                colIndex < board[0].length && board[rowIndex][colIndex] == 'O' && !visited[rowIndex][colIndex];
     }
 }
