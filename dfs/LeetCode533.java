@@ -36,63 +36,78 @@ picture[i][j] 为 'W' 或 'B'
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 class Solution {
-    class Pair {
-        int rowB;
-        int colB;
-        Pair (int rowB, int colB) {
-            this.rowB = rowB;
-            this.colB = colB;
-        }
-    }
-    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
     public int findBlackPixel(char[][] picture, int target) {
-        int row = picture.length;
-        int col = picture[0].length;
-        int count = 0;
-        boolean[][] eliminate = new boolean[row][col];
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (picture[i][j] == 'B' && !eliminate[i][j]) {
-                    Pair pair = new Pair(1, 1);
-                    dfs(i - 1, j, picture, 3, pair);
-                    dfs(i + 1, j, picture, 1, pair);
-                    dfs(i, j + 1, picture, 0, pair);
-                    dfs(i, j - 1, picture, 2, pair);
-                    if (pair.rowB == target && pair.colB == target) {
-                        boolean flag = true;
-                        for (int k = 0; k < row; k++) {
-                            if (picture[k][j] == 'B' && !Arrays.equals(picture[i], picture[k])) {
-                                flag = false;
-                                break;
-                            }
-                        }
-                        if (flag) {
-                            count += target;
-                            for (int k = 0; k < row; k++) {
-                                if (picture[k][j] == 'B') {
-                                    eliminate[k][j] = true;
-                                }
-                            }
+        int rows = picture.length;
+        int cols = picture[0].length;
+        int result = 0;
+        // 针对列进行剪枝，同一列只用计算一次
+        boolean[] colLop = new boolean[cols];
+        // 存储每行放的B数目
+        int[] rowArray = new int[rows];
+        // 存储每列放的B数目
+        int[] colArray = new int[cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (picture[i][j] == 'B' && !colLop[j]) {
+                    int rowCount = rowArray[i];
+                    if (rowArray[i] == 0) {
+                        // dfs(picture, i, j + 1, 0, 0)表示右边的B数目
+                        // dfs(picture, i, j - 1, 2, 0)表示左边的B数目
+                        rowCount = dfs(picture, i, j + 1, 0, 0)
+                                + dfs(picture, i, j - 1, 2, 0) + 1;
+                        rowArray[i] = rowCount;
+                    }
+                    int colCount = colArray[j];
+                    if (colArray[j] == 0) {
+                        // dfs(picture, i + 1, j, 1, 0)表示下边的B数目
+                        // dfs(picture, i - 1, j, 3, 0)表示上边的B数目
+                        colCount = dfs(picture, i + 1, j, 1, 0)
+                                + dfs(picture, i - 1, j, 3, 0) + 1;
+                        colArray[j] = colCount;
+                    }
+                    if (rowCount == target && colCount == target) {
+                        if (judgeAllColSameWithRow(i, j, picture)) {
+                            colLop[j] = true;
+                            // 同一列只用计算一次
+                            result += colCount;
                         }
                     }
                 }
             }
         }
-        return count;
+        return result;
     }
 
-    private void dfs(int row, int col, char[][] picture, int index, Pair pair) {
-        if (row < 0 || row >= picture.length || col < 0 ||
-                col >= picture[0].length) {
-            return;
-        }
-        if (picture[row][col] == 'B') {
-            if (index % 2 != 0) {
-                pair.rowB++;
-            } else {
-                pair.colB++;
+    private boolean judgeAllColSameWithRow(int row, int col, char[][] picture) {
+        for (int i = 0; i < picture.length; i++) {
+            if (picture[i][col] == 'B') {
+                if (!Arrays.equals(picture[i], picture[row])) {
+                    return false;
+                }
             }
         }
-        dfs(row + directions[index][0], col + directions[index][1], picture, index, pair);
+        return true;
+    }
+
+    /**
+     * 统计每一个方向的B数目
+     *
+     * @param picture 原数组
+     * @param row 行
+     * @param col 列
+     * @param direction 方向,0->右,1->下,2->左,3->上
+     * @param bCount B数目
+     * @return 该方向的B总数
+     */
+    private int dfs(char[][] picture, int row, int col, int direction, int bCount) {
+        if (row < 0 || row == picture.length || col < 0 || col == picture[0].length) {
+            return bCount;
+        }
+        if (picture[row][col] == 'B') {
+            bCount++;
+        }
+        return dfs(picture, row + directions[direction][0], col + directions[direction][1], direction, bCount);
     }
 }
