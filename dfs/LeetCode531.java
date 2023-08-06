@@ -22,31 +22,49 @@
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 class Solution {
-    int[][] directions = {{0, 1}, {1 ,0}, {0, -1}, {-1, 0}};
     public int findLonelyPixel(char[][] picture) {
-        int row = picture.length;
-        int col = picture[0].length;
-        int count = 0;
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (picture[i][j] == 'B') {
-                    if (dfs(i - 1, j, picture, 3) && dfs(i + 1, j, picture, 1)
-                        && dfs(i, j - 1, picture, 2) && dfs(i, j + 1, picture, 0)) {
-                        count++;
+        int rows = picture.length;
+        int cols = picture[0].length;
+        int result = 0;
+        boolean[] rowLop = new boolean[rows];
+        boolean[] colLop = new boolean[cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (picture[i][j] == 'B' && !rowLop[i] && !colLop[j]) {
+                    boolean rightFlag = dfs(picture, i, j + 1, 0);
+                    boolean downFlag = dfs(picture, i + 1, j, 1);
+                    boolean leftFlag = dfs(picture, i, j - 1, 2);
+                    boolean upFlag = dfs(picture, i - 1, j, 3);
+                    if (rightFlag && downFlag && leftFlag && upFlag) {
+                        rowLop[i] = true;
+                        colLop[j] = true;
+                        result++;
                     }
                 }
             }
         }
-        return count;
+        return result;
     }
 
-    private boolean dfs(int row, int col, char[][] picture, int index) {
-        if(row < 0 || row >= picture.length || col < 0 || col >= picture[0].length) {
+    private boolean dfs(char[][] picture, int row, int col, int direction) {
+        if (row < 0 || row == picture.length || col < 0 || col == picture[0].length) {
             return true;
-        }
+        } 
         if (picture[row][col] == 'B') {
             return false;
         }
-        return dfs(row + directions[index][0], col + directions[index][1], picture, index);
+        if (direction == 0) {
+            return dfs(picture, row, col + 1, 0);
+        }
+        if (direction == 1) {
+            return dfs(picture, row + 1, col, 1);
+        }
+        if (direction == 2) {
+            return dfs(picture, row, col - 1, 2);
+        }
+        if (direction == 3) {
+            return dfs(picture, row - 1, col, 3);
+        }
+        return true;
     }
 }
