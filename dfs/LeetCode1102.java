@@ -39,16 +39,18 @@ n == grid[i].length
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 class Solution {
-    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
     public int maximumMinimumPath(int[][] grid) {
-        int row = grid.length;
-        int col = grid[0].length;
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int maxScore = Math.min(grid[0][0], grid[rows - 1][cols - 1]);
         int left = 0;
-        int right = Math.min(grid[0][0], grid[row - 1][col - 1]);
+        int right = maxScore;
         int result = -1;
-        while(left <= right) {
+        while (left <= right) {
             int mid = (left + right) / 2;
-            if (dfs(0, 0, grid, new boolean[row][col], mid)) {  
+            if (dfs(grid, 0, 0, mid, new boolean[rows][cols])) {
                 result = Math.max(result, mid);
                 left = mid + 1;
             } else {
@@ -57,23 +59,23 @@ class Solution {
         }
         return result;
     }
-    
-    private boolean valid(int r, int c, int[][] grid) {
-        return r >= 0 && r < grid.length && c >=0 && c < grid[0].length;
-    }
 
-    private boolean dfs(int row, int col, int[][] grid, boolean[][] visited, int mid) {
+    private boolean dfs(int[][] grid, int row, int col, int score, boolean[][] visited) {
         if (row == grid.length - 1 && col == grid[0].length - 1) {
             return true;
         }
+        if (row < 0 || row == grid.length || col < 0 || col == grid[0].length || visited[row][col]) {
+            return false;
+        }
         visited[row][col] = true;
+        if (grid[row][col] < score) {
+            return false;
+        }
         for (int[] direction : directions) {
             int rowIndex = row + direction[0];
             int colIndex = col + direction[1];
-            if (valid(rowIndex, colIndex, grid) && !visited[rowIndex][colIndex] && grid[rowIndex][colIndex] >= mid) {    
-                if (dfs(rowIndex, colIndex, grid, visited, mid)) {
-                    return true;
-                }
+            if (dfs(grid, rowIndex, colIndex, score, visited)) {
+                return true;
             }
         }
         return false;
