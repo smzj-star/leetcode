@@ -36,79 +36,61 @@
 // 
 // Related Topics 深度优先搜索 广度优先搜索 数组 矩阵 👍 252 👎 0
 
-
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Queue;
-
-//leetcode submit region begin(Prohibit modification and deletion)
 class Solution {
-    static class Pair {
-        int x;
-        int y;
-        Pair(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    private static final int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    
     public int shortestBridge(int[][] grid) {
-        // DFS找到第一座岛
-        int row = grid.length;
-        int col = grid[0].length;
-        boolean found = false;
-        Deque<Pair> deque = new LinkedList<>();
-        for (int i = 0; i < row && !found; i++) {
-            for (int j = 0; j < col && !found; j++) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        Deque<int[]> deque = new LinkedList<>();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 if (grid[i][j] == 1) {
-                    // 找到所有联通的1,即第一座岛
                     dfs(deque, grid, i, j);
-                    found = true;
+                    return bfs(grid, deque);
                 }
             }
         }
-        if (!found) {
-            return -1;
-        }
-        // 使用BFS开始找第二座岛
-        int level = 0;
+        return 0;
+    }
+
+    private int bfs(int[][] grid, Deque<int[]> deque) {
+        int step = 0;
         while (!deque.isEmpty()) {
+            step++;
             int size = deque.size();
-            // 按层进行遍历
             for (int i = 0; i < size; i++) {
-                Pair cur = deque.poll();
+                int[] cur = deque.poll();
                 for (int[] direction : directions) {
-                    int rowIndex = cur.x + direction[0];
-                    int colIndex = cur.y + direction[1];
-                    if (valid(rowIndex, colIndex, grid) && grid[rowIndex][colIndex] != 2) {
+                    int rowIndex = cur[0] + direction[0];
+                    int colIndex = cur[1] + direction[1];
+                    if (isValid(grid, rowIndex, colIndex)) {
                         if (grid[rowIndex][colIndex] == 1) {
-                            return level;
-                        } else {
-                            grid[rowIndex][colIndex] = 2;
-                            deque.offer(new Pair(rowIndex, colIndex));
+                            return step - 1;
                         }
+                        deque.offer(new int[]{rowIndex, colIndex});
+                        grid[rowIndex][colIndex] = 2;
                     }
                 }
             }
-            level++;
         }
-        return -1;
+        return step;
     }
 
-    private void dfs(Deque<Pair> deque, int[][] grid, int i, int j) {
-        if (!valid(i, j, grid) || grid[i][j] != 1) {
+    private boolean isValid(int[][] grid, int rowIndex, int colIndex) {
+        return rowIndex >= 0 && rowIndex < grid.length 
+                && colIndex >= 0 && colIndex < grid[0].length && grid[rowIndex][colIndex] != 2;
+    }
+
+    private void dfs(Deque<int[]> deque, int[][] grid, int row, int col) {
+        if (row < 0 || row == grid.length || col < 0 || col == grid[0].length || grid[row][col] != 1) {
             return;
         }
-        grid[i][j] = 2;
-        deque.offer(new Pair(i, j));
-        for (int[] direction : directions) {
-            dfs(deque, grid, i + direction[0], j + direction[1]);
-        }
-    }
-
-    private boolean valid(int row, int col, int[][] grid) {
-        return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
+        deque.offer(new int[]{row, col});
+        grid[row][col] = 2;
+        dfs(deque, grid, row, col + 1);
+        dfs(deque, grid, row + 1, col);
+        dfs(deque, grid, row, col - 1);
+        dfs(deque, grid, row - 1, col);
     }
 }
-//leetcode submit region end(Prohibit modification and deletion)
