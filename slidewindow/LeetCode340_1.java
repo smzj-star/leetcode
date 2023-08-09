@@ -1,25 +1,25 @@
 class Solution {
     public int lengthOfLongestSubstringKDistinct(String s, int k) {
-        if (k == 0) {
-            return 0;
-        }
         char[] array = s.toCharArray();
         int len = array.length;
-        int res = 0;
-        Map<Character, Integer> map = new HashMap<>();
-        for (int left = 0, right = 0; right < len; right++) {
-            map.put(array[right], map.getOrDefault(array[right], 0) + 1);
-            if (map.size() > k) {
-                while (map.size() > k) {
-                    map.put(array[left], map.get(array[left]) - 1);
-                    if (map.get(array[left]) == 0) {
-                        map.remove(array[left]);
-                    }
-                    left++;
-                }
+        int diffCharCount = 0;
+        int[] hash = new int[128];
+        int left = 0;
+        int result = 0;
+        for (int right = 0; right < len; right++) {
+            hash[array[right]]++;
+            if (hash[array[right]] == 1) {
+                diffCharCount++;
             }
-            res = Math.max(res, right - left + 1);
+            while (diffCharCount > k) {
+                hash[array[left]]--;
+                if (hash[array[left]] == 0) {
+                    diffCharCount--;
+                }
+                left++;
+            }
+            result = Math.max(result, right - left + 1);
         }
-        return res;
+        return result;
     }
 }
